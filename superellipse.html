@@ -54,11 +54,11 @@
         }
         
         .canvas-container {
-            margin: 1.5rem -2rem; /* Negative margin to extend to card edges */
-            border-radius: 0; /* Remove border radius so grid goes to edges */
+            margin: 1.5rem -2rem;
+            border-radius: 0;
             overflow: hidden;
-            background: transparent; /* Let the grid background show */
-            width: calc(100% + 4rem); /* Extend full width */
+            background: transparent;
+            width: calc(100% + 4rem);
             height: 280px;
         }
         
@@ -179,28 +179,6 @@
             border: 1px solid rgba(102, 126, 234, 0.15);
         }
         
-        .footer {
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(102, 126, 234, 0.1);
-            font-size: 0.85rem;
-            color: #8E8E93;
-            line-height: 1.4;
-            text-align: center;
-        }
-        
-        .footer a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
-        
-        .footer a:hover {
-            color: #5856D6;
-            text-decoration: underline;
-        }
-        
         .value-display {
             font-size: 1.1rem;
             color: #333;
@@ -215,30 +193,81 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
+        .footer {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(102, 126, 234, 0.1);
+            font-size: 0.85rem;
+            color: #8E8E93;
+            line-height: 1.4;
+            text-align: center;
+        }
+        
+        .footer div {
+            margin: 0.2rem 0;
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .footer a:hover {
+            color: #5856D6;
+            text-decoration: underline;
+        }
+        
         .info-button {
             position: fixed;
             top: 20px;
             right: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            border: 2px solid rgba(255, 255, 255, 0.9);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 18px;
             font-weight: 600;
-            color: #667eea;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s ease;
+            color: white;
+            box-shadow: 
+                0 8px 32px rgba(0, 122, 255, 0.4),
+                0 4px 16px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             z-index: 1000;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 
+                    0 8px 32px rgba(0, 122, 255, 0.4),
+                    0 4px 16px rgba(0, 0, 0, 0.15);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 
+                    0 12px 40px rgba(0, 122, 255, 0.6),
+                    0 6px 20px rgba(0, 0, 0, 0.2);
+            }
         }
         
         .info-button:hover {
+            transform: scale(1.15);
+            animation: none;
+            box-shadow: 
+                0 12px 40px rgba(0, 122, 255, 0.5),
+                0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .info-button:active {
             transform: scale(1.05);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         }
         
         .modal {
@@ -305,6 +334,30 @@
             color: #333;
         }
         
+        .parameter-explanation {
+            background: linear-gradient(135deg, rgba(0, 122, 255, 0.08) 0%, rgba(88, 86, 214, 0.08) 100%);
+            border: 1px solid rgba(0, 122, 255, 0.15);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .parameter-explanation ul {
+            margin: 0.5rem 0;
+            padding-left: 1.2rem;
+        }
+        
+        .parameter-explanation li {
+            margin: 0.3rem 0;
+            color: #424245;
+        }
+        
+        .diagram-container {
+            display: flex;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 1.5rem;
@@ -313,6 +366,12 @@
             
             h1 {
                 font-size: 1.5rem;
+            }
+            
+            .canvas-container {
+                margin: 1.5rem -1.5rem;
+                width: calc(100% + 3rem);
+                height: 240px;
             }
             
             .modal-content {
@@ -324,13 +383,20 @@
             .info-button {
                 top: 15px;
                 right: 15px;
-                width: 35px;
-                height: 35px;
-                font-size: 1rem;
+                width: 40px;
+                height: 40px;
+                border-radius: 20px;
+                font-size: 16px;
             }
             
             .slider-wrapper {
                 max-width: 300px;
+            }
+            
+            .diagram-container svg {
+                width: 100%;
+                max-width: 280px;
+                height: auto;
             }
         }
     </style>
@@ -360,7 +426,8 @@
         </div>
         
         <div class="footer">
-            For more details click info icon on top right • Created with ♥️ by <a href="https://linkedin.com/in/pandeshivangi" target="_blank" rel="noopener noreferrer">Shivangi Pande</a>
+            <div>For more details click info icon on top right</div>
+            <div>Created with ♥️ by <a href="https://linkedin.com/in/pandeshivangi" target="_blank" rel="noopener noreferrer">Shivangi Pande</a></div>
         </div>
     </div>
     
@@ -370,6 +437,35 @@
         <div class="modal-content">
             <button class="modal-close" id="modalClose">×</button>
             <h2>What is a Superellipse?</h2>
+            
+            <div class="diagram-container">
+                <svg width="300" height="200" viewBox="0 0 300 200" style="border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; margin: 1rem 0;">
+                    <!-- Grid -->
+                    <defs>
+                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)" />
+                    
+                    <!-- Axes -->
+                    <line x1="150" y1="0" x2="150" y2="200" stroke="#ccc" stroke-width="1"/>
+                    <line x1="0" y1="100" x2="300" y2="100" stroke="#ccc" stroke-width="1"/>
+                    
+                    <!-- Superellipse -->
+                    <ellipse cx="150" cy="100" rx="60" ry="40" fill="rgba(0, 122, 255, 0.2)" stroke="#007AFF" stroke-width="2"/>
+                    
+                    <!-- Labels -->
+                    <text x="210" y="105" font-size="14" fill="#007AFF" font-weight="600">a</text>
+                    <text x="155" y="65" font-size="14" fill="#007AFF" font-weight="600">b</text>
+                    <text x="230" y="30" font-size="16" fill="#5856D6" font-weight="600">n = 2</text>
+                    
+                    <!-- Arrow lines -->
+                    <line x1="150" y1="100" x2="210" y2="100" stroke="#007AFF" stroke-width="1" stroke-dasharray="3,3"/>
+                    <line x1="150" y1="100" x2="150" y2="60" stroke="#007AFF" stroke-width="1" stroke-dasharray="3,3"/>
+                </svg>
+            </div>
+            
             <p>
                 A superellipse is a mathematical curve that generalizes the ellipse. By changing a single parameter, 
                 you can morph between different shapes – from pinched curves to perfect circles to rounded rectangles.
@@ -377,6 +473,15 @@
             
             <div class="equation">
                 |x/a|ⁿ + |y/b|ⁿ = 1
+            </div>
+            
+            <div class="parameter-explanation">
+                <p><strong>📐 What do the parameters mean?</strong></p>
+                <ul style="text-align: left; margin: 1rem 0; line-height: 1.6;">
+                    <li><strong>a</strong> = horizontal radius (width control)</li>
+                    <li><strong>b</strong> = vertical radius (height control)</li>
+                    <li><strong>n</strong> = shape parameter (the magic number!)</li>
+                </ul>
             </div>
             
             <p>
@@ -673,15 +778,13 @@
         
         // Handle window resize
         function windowResized() {
-            if (window.innerWidth < 768) {
-                canvasSize = Math.min(280, window.innerWidth - 80);
-                resizeCanvas(canvasSize, canvasSize);
-                a = b = canvasSize * 0.35;
-            } else {
-                canvasSize = 300;
-                resizeCanvas(canvasSize, canvasSize);
-                a = b = 120;
-            }
+            const container = document.getElementById('canvas-container');
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            
+            resizeCanvas(containerWidth, containerHeight);
+            canvasSize = Math.min(containerWidth, containerHeight);
+            a = b = canvasSize * 0.25;
         }
     </script>
 </body>
