@@ -1,1 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superellipse Playground</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 50%, #AF52DE 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1D1D1F;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem;
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.12),
+                0 8px 32px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+        
+        .canvas-container {
+            margin: 1.5rem -2rem; /* Negative margin to extend to card edges */
+            border-radius: 0; /* Remove border radius so grid goes to edges */
+            overflow: hidden;
+            background: transparent; /* Let the grid background show */
+            width: calc(100% + 4rem); /* Extend full width */
+            height: 280px;
+        }
+        
+        .controls {
+            margin: 1.5rem 0;
+        }
+        
+        .slider-container {
+            margin: 1.5rem 0;
+            position: relative;
+        }
+        
+        .slider-label {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1D1D1F;
+            letter-spacing: -0.01em;
+        }
+        
+        .slider-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
+            padding: 1.5rem 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 20px;
+            background: transparent;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+            position: relative;
+            z-index: 3;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 3px solid white;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5), 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .slider::-webkit-slider-thumb:active {
+            transform: scale(1.1);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: 3px solid white;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4), 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+        }
+        
+        .slider-track {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-radius: 20px;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        
+        .slider-progress {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            transform: translateY(-50%);
+            z-index: 2;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(102, 126, 234, 0.3);
+        }
+        
+        .shape-label {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-top: 1.5rem;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+            border-radius: 16px;
+            color: #4c51bf;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 3.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.4;
+            border: 1px solid rgba(102, 126, 234, 0.15);
+        }
+        
+        .footer {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(102, 126, 234, 0.1);
+            font-size: 0.85rem;
+            color: #8E8E93;
+            line-height: 1.4;
+            text-align: center;
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .footer a:hover {
+            color: #5856D6;
+            text-decoration: underline;
+        }
+        
+        .value-display {
+            font-size: 1.1rem;
+            color: #333;
+            margin-top: 1rem;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 12px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            display: inline-block;
+            min-width: 100px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .info-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #667eea;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+        
+        .info-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .modal h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .modal p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            color: #555;
+        }
+        
+        .equation {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .modal-content {
+                margin: 10px;
+                padding: 1.5rem;
+                max-height: 90vh;
+            }
+            
+            .info-button {
+                top: 15px;
+                right: 15px;
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+            
+            .slider-wrapper {
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌀 Superellipse Playground</h1>
+        
+        <div class="canvas-container" id="canvas-container">
+            <!-- p5.js canvas will be inserted here -->
+        </div>
+        
+        <div class="controls">
+            <div class="slider-container">
+                <div class="slider-label">Shape Parameter (n)</div>
+                <div class="slider-wrapper">
+                    <div class="slider-track"></div>
+                    <div class="slider-progress" id="sliderProgress"></div>
+                    <input type="range" id="nSlider" class="slider" min="0" max="15" step="1" value="6">
+                </div>
+                <div class="value-display">n = <span id="nValue">2.0</span></div>
+            </div>
+        </div>
+        
+        <div class="shape-label" id="shapeLabel">
+            Circle ⭕ - spinners, profile photos
+        </div>
+        
+        <div class="footer">
+            For more details click info icon on top right • Created with ♥️ by <a href="https://linkedin.com/in/pandeshivangi" target="_blank" rel="noopener noreferrer">Shivangi Pande</a>
+        </div>
+    </div>
+    
+    <button class="info-button" id="infoButton" aria-label="More info about superellipse">ⓘ</button>
+    
+    <div class="modal" id="infoModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">×</button>
+            <h2>What is a Superellipse?</h2>
+            <p>
+                A superellipse is a mathematical curve that generalizes the ellipse. By changing a single parameter, 
+                you can morph between different shapes – from pinched curves to perfect circles to rounded rectangles.
+            </p>
+            
+            <div class="equation">
+                |x/a|ⁿ + |y/b|ⁿ = 1
+            </div>
+            
+            <p>
+                <strong>The magic parameter:</strong> When n = 2, you get a classic circle. 
+                When n = 4, you get the famous "squircle" used in iPhone icons.
+                As n increases toward infinity, the shape becomes a perfect rectangle.
+            </p>
+            
+            <p>
+                <strong>Real-world applications:</strong> The Danish mathematician Piet Hein popularized 
+                the superellipse in the 1960s. Today, you see specific values everywhere: n=4 for iPhone app icons, 
+                n=6-8 for modern UI cards, and n=20+ for sharp rectangular designs.
+            </p>
+            
+            <p>
+                <strong>Mind-bending insight:</strong> At n = ∞, a perfect square emerges from the ellipse equation. 
+                This means that mathematically, a square IS an ellipse - just one from an infinite world! 
+                The superellipse bridges the gap between organic curves and geometric precision.
+            </p>
+        </div>
+    </div>
 
+    <script>
+        let canvas;
+        let n = 2;
+        let a = 120;
+        let b = 120;
+        let canvasSize = 300;
+        
+        // Discrete n values - now including mathematical edge cases
+        const nValues = [-2, -1, 0, 0.5, 1, 1.5, 2, 2.5, 3, 4, 6, 8, 12, 20, 50, Infinity];
+        
+        function setup() {
+            // Get the actual container size
+            const container = document.getElementById('canvas-container');
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            
+            // Create canvas to fill the entire container
+            canvas = createCanvas(containerWidth, containerHeight);
+            canvas.parent('canvas-container');
+            
+            // Update canvas size variables
+            canvasSize = Math.min(containerWidth, containerHeight);
+            a = b = canvasSize * 0.25; // Smaller relative size since canvas is bigger
+            
+            // Initialize slider - start at n=2 (circle), which is now index 6
+            updateSliderVisuals(6); 
+            
+            // Set initial values
+            n = nValues[6]; // Start with circle (n=2)
+            document.getElementById('nSlider').value = 6;
+            document.getElementById('nValue').textContent = n.toFixed(1);
+            document.getElementById('shapeLabel').textContent = getShapeLabel(n);
+        }
+        
+        function draw() {
+            // Get actual canvas dimensions
+            const w = width;
+            const h = height;
+            
+            // Clean background
+            background(252, 252, 254);
+            
+            // Draw grid covering entire canvas area
+            stroke(240, 240, 245);
+            strokeWeight(0.5);
+            
+            // Vertical grid lines across full width
+            for (let x = 0; x <= w; x += 20) {
+                line(x, 0, x, h);
+            }
+            
+            // Horizontal grid lines across full height
+            for (let y = 0; y <= h; y += 20) {
+                line(0, y, w, y);
+            }
+            
+            // Draw center axes
+            stroke(210, 210, 220);
+            strokeWeight(1);
+            line(w/2, 0, w/2, h);
+            line(0, h/2, w, h/2);
+            
+            // Draw superellipse (centered)
+            push();
+            translate(w/2, h/2);
+            
+            // Handle edge cases with imaginative visualizations
+            if (n < 0) {
+                // Negative n: Show imaginary/complex visualization
+                drawImaginaryShape(n);
+                pop();
+                return;
+            } else if (n === 0) {
+                // n = 0: Point singularity
+                fill(102, 126, 234, 200);
+                noStroke();
+                circle(0, 0, 8);
+                
+                // Add subtle rings
+                noFill();
+                stroke(102, 126, 234, 100);
+                strokeWeight(1);
+                for (let r = 15; r <= 60; r += 15) {
+                    circle(0, 0, r);
+                }
+                
+                // Add explanatory text
+                fill(102, 126, 234);
+                noStroke();
+                textAlign(CENTER, CENTER);
+                textSize(12);
+                text("All curves collapse\nto a single point", 0, 40);
+                pop();
+                return;
+            } else if (n === Infinity) {
+                // True infinity
+                fill(102, 126, 234, 100);
+                stroke(102, 126, 234);
+                strokeWeight(3);
+                rect(-a, -b, 2*a, 2*b);
+                
+                // Add infinity symbol
+                fill(118, 75, 162);
+                noStroke();
+                textAlign(CENTER, CENTER);
+                textSize(24);
+                text("∞", 0, 0);
+            } else {
+                // Normal positive n values
+                fill(102, 126, 234, 100);
+                stroke(102, 126, 234);
+                strokeWeight(3);
+                
+                if (n >= 20) {
+                    rect(-a, -b, 2*a, 2*b);
+                } else {
+                    beginShape();
+                    let step = n > 10 ? 0.005 : 0.01;
+                    for (let angle = 0; angle < TWO_PI; angle += step) {
+                        let x = superellipseX(angle, a, n);
+                        let y = superellipseY(angle, b, n);
+                        vertex(x, y);
+                    }
+                    endShape(CLOSE);
+                }
+            }
+            
+            // Draw center point (except for special cases)
+            if (n > 0 && n !== Infinity && n !== 0) {
+                fill(118, 75, 162);
+                noStroke();
+                circle(0, 0, 6);
+            }
+            
+            pop();
+        }
+        
+        function drawImaginaryShape(n) {
+            // Create a beautiful, ethereal representation of mathematical impossibility
+            let time = millis() * 0.001; // Animation time
+            
+            // Use purple/magenta colors to suggest "imaginary" numbers
+            let imaginaryColor = color(180, 100, 255);
+            let complexColor = color(255, 100, 180);
+            
+            // Draw animated, ghostly curves that suggest mathematical complexity
+            noFill();
+            strokeWeight(1.5);
+            
+            // Multiple overlapping spirals to suggest infinite complexity
+            for (let layer = 0; layer < 3; layer++) {
+                stroke(red(imaginaryColor), green(imaginaryColor), blue(imaginaryColor), 80 - layer * 20);
+                
+                beginShape();
+                for (let angle = 0; angle < TWO_PI * 3; angle += 0.05) {
+                    let radius = (a * 0.6) * (1 + 0.3 * sin(angle * abs(n) + time + layer));
+                    let x = cos(angle + time * 0.5) * radius * (0.8 + layer * 0.1);
+                    let y = sin(angle + time * 0.3) * radius * (0.8 + layer * 0.1);
+                    
+                    // Add some mathematical chaos for negative values
+                    x += 10 * sin(angle * 5 + time * 2) * (1 / (abs(n) + 1));
+                    y += 10 * cos(angle * 3 + time * 1.5) * (1 / (abs(n) + 1));
+                    
+                    vertex(x, y);
+                }
+                endShape();
+            }
+            
+            // Add floating "complex" particles
+            fill(red(complexColor), green(complexColor), blue(complexColor), 120);
+            noStroke();
+            for (let i = 0; i < 8; i++) {
+                let particleAngle = (i / 8) * TWO_PI + time;
+                let particleRadius = 40 + 15 * sin(time * 2 + i);
+                let px = cos(particleAngle) * particleRadius;
+                let py = sin(particleAngle) * particleRadius;
+                circle(px, py, 4 + 2 * sin(time * 3 + i));
+            }
+            
+            // Add mathematical notation to suggest complex numbers
+            fill(180, 100, 255, 150);
+            textAlign(CENTER, CENTER);
+            textSize(14);
+            text("i²", -30, -30);
+            text("√-1", 30, 30);
+            
+            // Central indicator
+            fill(255, 100, 180);
+            noStroke();
+            circle(0, 0, 8);
+            
+            // Explanatory text
+            fill(150, 80, 200);
+            textSize(11);
+            text("Imaginary realm\nComplex mathematics", 0, 50);
+        }
+        
+        function superellipseX(t, a, n) {
+            // Handle the special case where n = 2 (perfect ellipse)
+            if (Math.abs(n - 2) < 0.001) {
+                return a * Math.cos(t);
+            }
+            return a * Math.sign(Math.cos(t)) * Math.pow(Math.abs(Math.cos(t)), 2/n);
+        }
+        
+        function superellipseY(t, b, n) {
+            // Handle the special case where n = 2 (perfect ellipse)
+            if (Math.abs(n - 2) < 0.001) {
+                return b * Math.sin(t);
+            }
+            return b * Math.sign(Math.sin(t)) * Math.pow(Math.abs(Math.sin(t)), 2/n);
+        }
+        
+        function getShapeLabel(n) {
+            const labels = {
+                '-2': "🚫 Mathematical impossibility - negative powers create complex curves",
+                '-1': "⚠️ Undefined territory - infinite discontinuities everywhere", 
+                '0': "🔵 Point singularity - shape collapses to a single point",
+                '0.5': "Starburst ✨ - sparkle, sometimes used for AI",
+                '1': "Rhombus 💎 - railway signs", 
+                '1.5': "Diamond 💍 - jewelry shapes",
+                '2': "Circle ⭕ - spinners, profile photos",
+                '2.5': "Soft oval 🖼️ - picture frames, Pixel Watch",
+                '3': "Chat bubbles 💬 - WhatsApp, Android 4.0 cards",
+                '4': "Apple squircle 📱 - iOS app icons",
+                '6': "Credit card 💳 - Microsoft Copilot tiles",
+                '8': "Contemporary UI 🔘 - Google Material Design",
+                '12': "Business cards 💼 - name tags",
+                '20': "Book covers 📚 - Kindle UI",
+                '50': "Perfect square ⬜ - when n approaches infinity",
+                'Infinity': "🌌 True infinity - the mathematical limit of perfect squares"
+            };
+            return labels[String(n)] || "Custom superellipse 🎯 - unique mathematical form";
+        }
+        
+        function updateSliderVisuals(index) {
+            // Update progress bar
+            const progressBar = document.getElementById('sliderProgress');
+            const percentage = (index / (nValues.length - 1)) * 100;
+            progressBar.style.width = percentage + '%';
+        }
+        
+        // Event listeners
+        document.getElementById('nSlider').addEventListener('input', function(e) {
+            const sliderIndex = parseInt(e.target.value);
+            n = nValues[sliderIndex];
+            
+            // Handle display of special values
+            if (n === Infinity) {
+                document.getElementById('nValue').textContent = "∞";
+            } else {
+                document.getElementById('nValue').textContent = n.toFixed(1);
+            }
+            
+            document.getElementById('shapeLabel').textContent = getShapeLabel(n);
+            updateSliderVisuals(sliderIndex);
+        });
+        
+        document.getElementById('infoButton').addEventListener('click', function() {
+            document.getElementById('infoModal').style.display = 'flex';
+        });
+        
+        document.getElementById('modalClose').addEventListener('click', function() {
+            document.getElementById('infoModal').style.display = 'none';
+        });
+        
+        document.getElementById('infoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+        
+        // Handle window resize
+        function windowResized() {
+            if (window.innerWidth < 768) {
+                canvasSize = Math.min(280, window.innerWidth - 80);
+                resizeCanvas(canvasSize, canvasSize);
+                a = b = canvasSize * 0.35;
+            } else {
+                canvasSize = 300;
+                resizeCanvas(canvasSize, canvasSize);
+                a = b = 120;
+            }
+        }
+    </script>
+</body>
+</html>
